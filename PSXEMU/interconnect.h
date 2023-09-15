@@ -12,5 +12,6 @@ private:
 public:
 	Interconnect(Bios bios);
 	u32 load32(u32 address);
+	u32 store32(u32 address, u32 value);
 };
 
