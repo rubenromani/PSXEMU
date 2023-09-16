@@ -31,7 +31,7 @@ u32 Interconnect::load32(u32 address)
 	return redirect_load32_(address);
 }
 
-u32 Interconnect::store32(u32 address, u32 value)
+void Interconnect::store32(u32 address, u32 value)
 {
 	if (address % 4 != 0)
 	{
@@ -48,25 +48,32 @@ u32 Interconnect::store32(u32 address, u32 value)
 			{
 				std::cerr << "Bad expansion 1 base address: " <<
 					std::hex << address << std::endl;
-				return 0x0;
+				return;
 			}
 		case 4:
 			if (value != 0x1f802000)
 			{
 				std::cerr << "Bad expansion 2 base address: " <<
 					std::hex << address << std::endl;
-				return 0x0;
+				return;
 			}
 		default:
-			std::cerr << "Unable to write to MEMCONTROL register" << std::endl;
+			std::cerr << "Unable to write to MEMCONTROL register: " << std::hex << address << std::endl;
 			break;
 		}
-		return 0x00;
+		return;
 	}
 
 	if (address == RAM_SIZE_LOCATION)
 	{
-		return 0x0;
+		std::cout << "Unable to write in the RAM_SIZE_LOCATION" << std::endl;
+		return;
+	}
+
+	if (address == CACHE_CONTROL)
+	{
+		std::cout << "Unable to write in the CACHE_CONTROL Register" << std::endl;
+		return;
 	}
 
 

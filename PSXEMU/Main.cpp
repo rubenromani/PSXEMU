@@ -9,7 +9,7 @@ int main()
 	Interconnect interconnect = Interconnect(bios);
 	CPU::Core cpu_core = CPU::Core(interconnect);
 
-	for (int i = 0; i < 100; i++)
+	for (;;)
 	{
 		cpu_core.run_next_instruction();
 	}

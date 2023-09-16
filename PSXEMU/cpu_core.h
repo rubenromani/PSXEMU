@@ -10,26 +10,17 @@ namespace CPU
 
 	struct State
 	{
-		u32 pc;
+		u32 pc;					// Program counter
 		u32 hi;
 		u32 lo;
-		u32 regs[N_GP_REG];
+		u32 regs[N_GP_REG];		// Registers
+		u32 sr;					// Coprocessor0 reg12: Status Register
 	};
 
-	enum RegIdx
+	struct RegisterIdx
 	{
-		zero,
-		at,
-		v0,v1,
-		a0,a1,a2,a3,
-		t0,t1,t2,t3,t4,t5,t6,t7,
-		s0,s1,s2,s3,s4,s5,s6,s7,
-		t8,t9,
-		k0,k8,
-		gp,
-		sp,
-		fp,
-		ra
+		RegisterIdx(u32 value) : value(value) {};
+		u32 value;
 	};
 
 	struct Instruction
@@ -45,15 +36,15 @@ namespace CPU
 		}
 
 		// Returns the source register index [25:21]
-		u8 source_register()
+		RegisterIdx s()
 		{
-			return (value >> 21) & 0x1f;
+			return RegisterIdx((value >> 21) & 0x1f);
 		}
 
 		// Returns the target register index [20:16]
-		u8 target_register()
+		RegisterIdx t()
 		{
-			return (value >> 16) & 0x1f;
+			return RegisterIdx((value >> 16) & 0x1f);
 		}
 		
 		// Returns the immediate value [16:0]
@@ -71,9 +62,9 @@ namespace CPU
 		}
 
 		// Returns register index in bits [15::11]
-		u8 d()
+		RegisterIdx d()
 		{
-			return (value >> 11) & 0x1f;
+			return RegisterIdx((value >> 11) & 0x1f);
 		}
 
 		// Returns the bits [5:0] of the instruction
@@ -94,6 +85,12 @@ namespace CPU
 			return value & 0x3ffffff;
 		}
 
+		// return the coprocessor opcode [25:21]
+		u32 cop_opcode()
+		{
+			return (value >> 21) & 0x1f;
+		}
+
 	};
 
 	class Core
@@ -104,35 +101,46 @@ namespace CPU
 		Interconnect interconnect_;
 
 		u32 load32_(u32 address);
-		u32 store32_(u32 address, u32 value);
+		void store32_(u32 address, u32 value);
+		void branch(u32 offset);
 		void decode_and_execute_(Instruction instruction);
 
 		static const u32
-			ins_lui_ =	0b001111,
-			ins_ori_ =	0b001101,
-			ins_sw_ =	0b101011,
-			ins_addiu_ =	0b001001,
-			ins_j_		= 0b000010,
+			ins_lui_ = 0b001111,
+			ins_ori_ = 0b001101,
+			ins_sw_ = 0b101011,
+			ins_addiu_ = 0b001001,
+			ins_addi_ = 0b001000,
+			ins_j_ = 0b000010,
+			ins_bne_ = 0b000101,
+
 			ins_spec_ = 0b000000,
 			ins_sll_ = 0b000000,
-			ins_or_ = 0b100101;
+			ins_or_ = 0b100101,
+
+			ins_cop0_ = 0b010000,
+			ins_mtc0_ = 0b00100;
 
 
 		void exec_lui_(Instruction instruction);		// Load upper immediate
 		void exec_ori_(Instruction instruction);		// Bitwise OR immediate
 		void exec_sw_(Instruction instruction);			// Store Word
 		void exec_addiu_(Instruction instruction);		// Add Immediate Unsigned
-		void exec_j_(Instruction instruction);		// Jump to target stored in [25:0]
-		void exec_spec_(Instruction instruction);		// Store Word
+		void exec_addi_(Instruction instruction);		// Add Immediate
+		void exec_j_(Instruction instruction);			// Jump to target stored in [25:0]
+		void exec_bne_(Instruction instruction);		// Branch not equal
+
+		void exec_spec_(Instruction instruction);		// Special function
 		void exec_sll_(Instruction instruction);		// Shift left logical
 		void exec_or_(Instruction instruction);		// Shift left logical
+
+		void exec_cop0_(Instruction instruction);	// Instruction for the coprocessor 0
+		void exec_mtc0_(Instruction instruction);	// 
 
 	public:
 		Core(Interconnect interconnect);
 		void run_next_instruction();
-		void set_reg(RegIdx reg_idx, u32 value);
-		u32 get_reg(RegIdx reg_idx) const;
-		void set_reg(u8 reg_idx, u32 value);
-		u32 get_reg(u8 reg_idx) const;
+		void set_reg(RegisterIdx reg_idx, u32 value);
+		u32 get_reg(RegisterIdx reg_idx) const;
 	};
 }
