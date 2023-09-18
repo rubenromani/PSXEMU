@@ -15,5 +15,6 @@ public:
 	~Bios();
 	Bios(const Bios& bios);
 	u32 load32(u32 offset);
+	u8 load8(u32 offset);
 };
 

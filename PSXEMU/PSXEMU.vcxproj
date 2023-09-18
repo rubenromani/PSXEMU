@@ -143,12 +143,14 @@
     <ClCompile Include="cpu_core.cpp" />
     <ClCompile Include="interconnect.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="ram.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="address_map.h" />
     <ClInclude Include="bios.h" />
     <ClInclude Include="cpu_core.h" />
     <ClInclude Include="interconnect.h" />
+    <ClInclude Include="ram.h" />
     <ClInclude Include="types.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

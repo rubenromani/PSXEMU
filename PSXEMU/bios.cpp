@@ -39,3 +39,8 @@ u32 Bios::load32(u32 offset)
 		(static_cast<u32>(bios_data_[offset + 3]) << 24);
 	return data;
 }
+
+u8 Bios::load8(u32 offset)
+{
+	return bios_data_[offset];
+}
